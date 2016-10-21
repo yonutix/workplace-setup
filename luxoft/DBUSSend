@@ -1,0 +1,62 @@
+
+GREEN='\e[0;32m'
+NC='\033[0m'
+RED='\e[1;31m'
+
+if [ "$#" -eq 0 ]; then
+  
+  echo -e "${GREEN}When starting a screen directly with dbus it may not work correctly as it is not started from the contextual screen${NC}"
+
+  echo -e "${GREEN}Radio:${NC}"
+  echo "radio-primary"
+  echo "radio-program-list"
+  echo "radio-stations"
+  echo "radio-settings"
+
+  echo -e "${GREEN}Settings:${NC}"
+  echo "settings-primary"
+  echo "setings-profile-conf"
+  
+  echo -e "${GREEN}AUDIO${NC}"
+  echo "audio-zone"
+fi
+
+
+if [ "$1" == "radio-primary" ]; then
+  target shell "dbus-send --system --dest=com.ovip.interHMI.Communication.RadioHMI --type=method_call --print-reply /com/ovip/interHMI/Communication/RadioHMI com.ovip.interHMI.Communication.RadioHMI.sltOpenRadioPrimary"
+fi
+
+if [ "$1" == "radio-program-list" ]; then
+  target shell "dbus-send --system --dest=com.ovip.interHMI.Communication.RadioHMI --type=method_call --print-reply /com/ovip/interHMI/Communication/RadioHMI com.ovip.interHMI.Communication.RadioHMI.sltOpenProgramsList"
+fi
+
+
+if [ "$1" == "radio-stations" ]; then
+  target shell "dbus-send --system --dest=com.ovip.interHMI.Communication.RadioHMI --type=method_call --print-reply /com/ovip/interHMI/Communication/RadioHMI com.ovip.interHMI.Communication.RadioHMI.sltOpenRadioStations"
+fi
+
+
+if [ "$1" == "radio-settings" ]; then
+  target shell "dbus-send --system --dest=com.ovip.interHMI.Communication.RadioHMI --type=method_call --print-reply /com/ovip/interHMI/Communication/RadioHMI com.ovip.interHMI.Communication.RadioHMI.sltOpenRadioSettings"
+fi
+
+
+if [ "$1" == "settings-primary" ]; then
+  target shell "dbus-send --system --dest=com.ovip.interHMI.Communication.SettingsHMI --type=method_call --print-reply /com/ovip/interHMI/Communication/SettingsHMI com.ovip.interHMI.Communication.SettingsHMI.sltRequestShowSettingsPrimaryPanel"
+fi
+
+
+if [ "$1" == "setings-profile-conf" ]; then
+  target shell "dbus-send --system --dest=com.ovip.interHMI.Communication.SettingsHMI --type=method_call --print-reply /com/ovip/interHMI/Communication/SettingsHMI com.ovip.interHMI.Communication.SettingsHMI.sltRequestShowCustomProfileConfiguration"
+fi
+
+
+if [ "$1" == "audio-zone" ]; then
+  target shell "dbus-send --system --dest=com.ovip.interHMI.Communication.AudioHMI --type=method_call --print-reply /com/ovip/interHMI/Communication/AudioHMI com.ovip.interHMI.Communication.AudioHMI.sltRequestShowZoneAudio int32:2 int32:0"
+fi
+
+if [ "$1" == "media-primary" ]; then
+  target shell "dbus-send --system --dest=com.ovip.interHMI.Communication.MediaHMI --type=method_call --print-reply /com/ovip/interHMI/Communication/MediaHMI com.ovip.interHMI.Communication.MediaHMI.sltOpenMediaScreen"
+fi
+
+

@@ -1,0 +1,86 @@
+if [ "$#" -eq 0 ]; then
+  echo
+  echo "    target reboot                       Reboots the target"
+  echo "    target install [application.apk]    Installs the specified application, if no argument is provided the script will search in the current folder and in the Output folder"
+  echo "    target root                         The device is not read only anymore"
+  echo "    target shell [command]              Runs the command on the device, if no argument is provided then it logs on the device" 
+  echo "    target  restart            "
+  echo "    target  push            "
+  echo "    target  info            "
+  echo "    target  pull            "
+  echo "    target  screenshot            "
+fi
+
+
+if [ "$1" == "reboot" ]; then
+  ssh root@192.168.1.112 reboot
+  exit 0
+fi
+
+GREEN='\e[0;32m'
+NC='\033[0m'
+RED='\e[1;31m'
+
+
+if [ "$1" == "install" ]; then
+  installipk $2
+  exit 0
+fi
+
+if [ "$1" == "root" ]; then
+  ssh root@192.168.1.112 "mount / -oremount,rw"
+  exit 0
+fi
+
+if [ "$1" == "shell" ]; then
+  ssh root@192.168.1.112 "${@:2}"
+  exit 0
+fi
+
+if [ "$1" == "remount" ]; then
+  ssh root@192.168.1.112 "mount /dev/mmcblk1p2 /media/datastore -oremount,rw"
+  exit 0
+fi
+
+if [ "$1" == "push" ]; then
+  scp -r $2 root@192.168.1.112:$3
+  exit 0
+fi
+
+if [ "$1" == "pull" ]; then
+  scp -r root@192.168.1.112:$2 $2
+  exit 0
+fi
+
+if [ "$1" == "restart-media" ]; then
+  ssh root@192.168.1.112 "systemctl restart ovip-sys-media-app"
+  exit 0    
+fi
+
+if [ "$1" == "restart-settings" ]; then
+  ssh root@192.168.1.112 "systemctl restart ovip-sys-hmi-settings"
+  exit 0    
+fi
+
+if [ "$1" == "restart" ]; then
+  ssh root@192.168.1.112 "systemctl restart $2"
+  ssh root@192.168.1.112 sync
+  exit 0
+fi
+
+if [ "$1" == "info" ]; then
+  ssh root@192.168.1.112 printOIPBuildInfo.sh
+  ssh root@192.168.1.112 "uname -a"
+  ssh root@192.168.1.112 "cat /proc/version"
+  ssh root@192.168.1.112 "cat /etc/*-release"
+  exit 0
+fi
+#TODO: Not working yet
+if [ "$1" == "screenshot" ]; then
+    ssh root@192.168.1.112 "rm wayland-screenshot.png"
+    ssh root@192.168.1.112 "weston-screenshooter"
+    scp root@192.168.1.112:~/wayland-screenshot.png .
+    ssh root@192.168.1.112 "rm wayland-screenshot.png"
+    exit 0
+fi
+echo "Command $1 not found"

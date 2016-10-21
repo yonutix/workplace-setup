@@ -1,0 +1,69 @@
+#!/bin/bash
+
+CMD_DIR="/home/uidk9631/commands"
+DB_NAME="$CMD_DIR/installdb.txt"
+
+if [ "$#" -eq 1 ]; then
+    IPK_NAME=$1
+fi
+
+
+if [ "$#" -lt 1 ]; then
+
+    IPK_NAME=`ls *.ipk 2> /dev/null`
+    APK_NR=`ls *.ipk 2> /dev/null | wc -l`
+
+    if [ "$APK_NR" -gt 1 ]; then
+        echo "Multiple ipk detected. Usage: target install <<IPK_NAME>>"
+        exit 0
+    fi
+
+    if [ -z "$IPK_NAME" ]; then
+        IPK_NAME=`ls Output/*.ipk 2> /dev/null`
+        APK_NR=`ls Output/*.ipk 2> /dev/null | wc -l`
+        if [ "$APK_NR" -eq 0 ]; then
+            echo "No ipk found in the current directory or in the Output directory"
+            exit 0
+        fi
+
+        if [ "$APK_NR" -gt 1 ]; then
+            echo "Multiple ipks detected. Usage: target install <<IPK_NAME>>"
+            exit 0
+        fi
+    fi
+fi
+
+
+echo "Installing $IPK_NAME"
+
+ssh root@192.168.1.112 "mount / -oremount,rw"
+
+scp $IPK_NAME root@192.168.1.112:~/
+
+IPK=`echo $IPK_NAME | rev | cut -d '/' -f 1 | rev`
+
+ssh root@192.168.1.112 "opkg install --force-overwrite $IPK"
+
+ATTACHED_SERVICE=`cat $DB_NAME | grep $IPK | cut -d ' ' -f 2-`
+
+if [ -z "$ATTACHED_SERVICE" ]; then
+
+    echo "I do not know the service that needs to be restarted for $IPK . Please provide a service name or press enter if you don't need to restart the service."
+
+    read ANSWER
+
+    if [ -z "$ANSWER" ]; then
+        exit 0
+    fi
+    echo "Thank you!"
+    echo "$IPK $ANSWER" >> $DB_NAME
+fi
+
+ATTACHED_SERVICE=`cat $DB_NAME | grep $IPK | cut -d ' ' -f 2-`
+GREEN='\e[0;32m'
+NC='\033[0m'
+RED='\e[1;31m'
+echo -e "${GREEN}Restarting $ATTACHED_SERVICE ${NC}"
+ERR=$(ssh root@192.168.1.112 "systemctl restart $ATTACHED_SERVICE" 2>&1)
+echo -e "${RED} ${ERR} ${NC}"
+target shell "sync"

@@ -1,0 +1,3 @@
+sys-radio_99.99.99-r99_arm.ipk ovip-sys-radio-app
+hmiapplication_99.99.99-r99_arm.ipk ovip-sys-hmi-app
+sys-radio-99.99.99-r99.ipk ovip-sys-radio-app
