@@ -2,9 +2,9 @@
 
 #1 - file, 2 - string to add
 function add_if_missing {
-    STR=`cat $2 | grep $1`
+    STR=`cat $1 | grep $2`
     if [ -z "$STR" ]; then
-        echo "$1" >> $2
+        echo "$2" >> $1
     fi
 
 }
