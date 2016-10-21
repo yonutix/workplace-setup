@@ -1,0 +1,59 @@
+rm .tmpUsbResults
+touch .tmpUsbResults
+
+if [ $# -lt 1 ]; then
+   echo "Usage: ./usbPerformance ITERATIONS"
+   exit 2
+fi
+
+if [[ $1 -eq 0 ]]; then
+	echo "Iterations number must be greater than 0"
+	exit 2
+fi
+
+
+for (( i=0; i<=$1; i++ ))
+do 
+	./writespeed $i >> .tmpUsbResults; sleep 1
+	echo "write "$i
+done
+
+for (( i=0; i<=$1; i++ ))
+do 
+	./readspeed $i >> .tmpUsbResults; sleep 1
+	echo "read "$i
+done
+
+
+SUM_WRITE=0
+NR=`cat .tmpUsbResults | wc -l`
+NR=`echo $NR"/2" | bc`
+
+for (( i=1; i<=$NR; i++ ))
+do 
+	V=`cat .tmpUsbResults | tail -n $i | head -n 1`
+	SUM_WRITE=`echo $SUM_WRITE" + "$V | bc`
+done
+
+
+SUM_READ=0
+NR=`cat .tmpUsbResults | wc -l`
+NR=`echo $NR"/2" | bc`
+SUM_READ=0
+
+NR_FULL=`echo $NR"*2" | bc`
+
+for (( i=$NR; i<=$NR_FULL; i++ ))
+do 
+	V=`cat .tmpUsbResults | tail -n $i | head -n 1`
+	SUM_READ=`echo $SUM_READ" + "$V | bc`
+done
+
+
+echo "Result:"
+echo -n "Write speed: "
+echo -n `echo "scale=4;"$SUM_WRITE"/"$NR | bc`
+echo " MB/s"
+echo -n "Read speed: "
+echo -n `echo "scale=4;"$SUM_READ"/"$NR | bc`
+echo " MB/s"

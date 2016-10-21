@@ -1,0 +1,11 @@
+USBADDR=`adb shell df | grep usb | cut -d ' ' -f1-1 | tail -n 1`
+
+T1=`adb shell dd if=$USBADDR/test$1.file of=/dev/null bs=1048576 count=300 | tail -n 1`
+
+T2=$(time (sync >/dev/null 2>&1) 2>&1)
+
+E1=`echo $T2 | cut -d ' ' -f 2-2 | cut -d 'm' -f 2-2 | cut -d 's' -f1-1`
+
+E2=`echo $T1 | cut -d ' ' -f 5-5`
+
+echo "scale=4; 300.0/($E1 + $E2)" | bc
