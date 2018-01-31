@@ -37,7 +37,7 @@ repositories=(ppa:webupd8team/atom )
 map_function add_repository ${repositories[@]}
 
 
-packages=(vim terminator python atom git meld ecplise firefox gcc g++ mc subversion kdesvn )
+packages=(net-tools curl vim terminator python atom git meld ecplise firefox gcc g++ mc subversion)
 map_function install_package ${packages[@]}
 
 
